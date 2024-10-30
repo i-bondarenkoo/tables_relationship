@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-DATABASE_URL = "sqlite+aiosqlite:///.jokes.db"
+DATABASE_URL = "sqlite+aiosqlite:///./jokes.db"
 
 engine = create_async_engine(
     url=DATABASE_URL,
@@ -14,3 +14,8 @@ async_session = async_sessionmaker(
     autoflush=False,
     autocommit=False,
 )
+
+#создать функцию-зависимость, которая будет автоматически открывать и закрывать сессию при каждом запросе
+async def get_database_session():
+    async with async_session() as session:
+        yield session
