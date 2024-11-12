@@ -4,6 +4,13 @@ from database import get_database_session
 from sqlalchemy import select
 from schemas import  UserCreate
 from models.user import User
+from models.joke import Joke
+from models.category import Category
+from models.reaction import Reaction
+from schemas import CategoryCreate
+from schemas import JokeCreate
+from schemas import CreateReaction
+
 
 async def get_user_by_id(user_id: int, session: AsyncSession = Depends(get_database_session)):
     stmt = select(User).where(User.id == user_id)
@@ -28,4 +35,78 @@ async def create_user(user_in: UserCreate, session: AsyncSession = Depends(get_d
     await session.commit()
     await session.refresh(user)
     return user
+
+async def create_category(data_in: CategoryCreate, session: AsyncSession = Depends(get_database_session)):
+    data = Category(
+        name=data_in.name,
+        description=data_in.description,
+    )
+    session.add(data)
+    await session.commit()
+    await session.refresh(data)
+    return data
         
+        
+async def get_categories_all(session: AsyncSession = Depends(get_database_session)):
+    stmt = select(Category).order_by(Category.id)
+    result = await session.execute(stmt)
+    categories_all = result.scalars().all()
+    return list(categories_all)     
+
+async def get_categories_by_id(category_id: int, session: AsyncSession = Depends(get_database_session)):
+    stmt = select(Category).where(Category.id == category_id)
+    result = await session.execute(stmt)
+    response = result.scalar_one_or_none()
+    return response
+
+
+async def create_joke(data_in: JokeCreate, session: AsyncSession = Depends(get_database_session)):
+    joke = Joke(
+        content=data_in.content,
+        user_id=data_in.user_id,
+        category_id=data_in.category_id,
+        
+    )
+    session.add(joke)
+    await session.commit()
+    await session.refresh(joke)
+    return joke
+
+
+async def get_jokes_all(session: AsyncSession = Depends(get_database_session)):
+    stmt = select(Joke).order_by(Joke.id)
+    result = await session.execute(stmt)
+    response = result.scalars().all()
+    return list(response)
+
+async def get_jokes_by_id(joke_id: int, session: AsyncSession = Depends(get_database_session)):
+    stmt = select(Joke).where(Joke.id == joke_id)
+    result = await session.execute(stmt)
+    response = result.scalar_one_or_none()
+    return response
+
+
+async def create_reaction(data_in: Reaction, session: AsyncSession = Depends(get_database_session)):
+    reaction = Reaction(
+        type=data_in.type,
+        user_id=data_in.user_id,
+        joke_id=data_in.joke_id,
+    )
+    session.add(reaction)
+    await session.commit()
+    await session.refresh(reaction)
+    return reaction
+
+
+async def get_reaction_by_id(reaction_id: int, session: AsyncSession = Depends(get_database_session)):
+    stmt = select(Reaction).where(Reaction.id == reaction_id)
+    result = await session.execute(stmt)
+    response = result.scalar_one_or_none()
+    return response
+
+
+async def get_reactions_all(session: AsyncSession = Depends(get_database_session)):
+    stmt = select(Reaction).order_by(Reaction.id)
+    result = await session.execute(stmt)
+    response = result.scalars().all()
+    return list(response)
