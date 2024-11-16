@@ -11,8 +11,8 @@ from models.reaction import Reaction
 from schemas import CategoryCreate
 from schemas import JokeCreate
 from fastapi import HTTPException
-
-
+from datetime import datetime
+from sqlalchemy import func
 async def get_user_by_id(user_id: int, session: AsyncSession = Depends(get_database_session)):
     stmt = select(User).where(User.id == user_id)
     result = await session.execute(stmt)

@@ -4,6 +4,7 @@ from fastapi import Depends
 import crud
 from database import get_database_session
 from schemas import JokeCreate
+from datetime import datetime
 
 
 router = APIRouter(
